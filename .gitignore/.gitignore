@@ -1,0 +1,118 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Net;
+using System.IO;
+
+namespace League
+{
+    class Program
+    {
+       static public List<string> idd = new List<string>(), name = new List<string>(), sex = new List<string>(), age = new List<string>();
+
+
+        static public string readd(string a)
+        {
+            WebRequest request = WebRequest.Create(a);
+            WebResponse response = request.GetResponse();
+            StreamReader reader = new StreamReader(response.GetResponseStream());
+            return reader.ReadToEnd();
+        }
+
+        static void div(string a)
+        {
+            for(int i = 0; i < a.Length - 8; i++)
+            {
+                string per = "";
+                if(a[i] == 'i' && a[i + 1] == 'd' && a[i + 2] == '"')
+                {
+                    for(int j = i + 5; a[j] != '"'; j++)
+                    {
+                        per += a[j];
+                        i = j;
+                    }
+                    idd.Add(per);
+                    per = "";
+                    continue;
+                }
+                if (a[i] == 'n' && a[i + 1] == 'a' && a[i + 2] == 'm' && a[i + 3] == 'e' && a[i + 4] == '"')
+                {
+                    for (int j = i + 7; a[j] != '"'; j++)
+                    {
+                        per += a[j];
+                        i = j;
+                    }
+                    name.Add(per);
+                    per = "";
+                    continue;
+                }
+                if (a[i] == 's' && a[i + 1] == 'e' && a[i + 2] == 'x' && a[i + 3] == '"')
+                {
+                    for (int j = i + 6; a[j] != '"'; j++)
+                    {
+                        per += a[j];
+                        i = j;
+                    }
+                    sex.Add(per);
+                    per = "";
+                    continue;
+                }
+            }
+        }
+
+        static void quest(string a)
+        {
+            int where = a.LastIndexOf("age");
+            string ans = "";
+            for (int i = where + 5; a[i] != '}'; i++)
+            {
+                ans += a[i];
+            }
+            age.Add(ans);
+                             // Console.WriteLine(a);
+        }
+
+        static void answer()
+        {
+            string ma_name = "", fe_name = "";
+            int min_ma = 999, min_fe = 999;
+            for (int i = 0; i < idd.Count; i++)
+            {
+                int agee = Convert.ToInt32(age[i]);
+                if (sex[i] == "male" && min_ma > agee)
+                {
+                    ma_name = name[i];
+                    min_ma = agee;
+                }
+                if (sex[i] == "female" && min_fe > agee)
+                {
+                    fe_name = name[i];
+                    min_fe = agee;
+                }
+            }
+            Console.WriteLine("Самый молодой парень : " + ma_name + "  Возраст " + min_ma);
+            Console.WriteLine("Самая молодая девушка : " + fe_name + "  Возраст " + min_fe);
+        }
+
+        static void Main(string[] args)
+        {
+            string all = readd("http://testlodtask20172.azurewebsites.net/task");
+            all += "##########";
+            div(all);
+            all = "";
+            
+
+            for (int i = 0; i < idd.Count; i++)
+            {
+                string per = "http://testlodtask20172.azurewebsites.net/task/";
+                per += idd[i];
+                quest(readd(per));
+            }
+
+            answer();
+            Console.ReadKey();
+        }
+    }
+}
